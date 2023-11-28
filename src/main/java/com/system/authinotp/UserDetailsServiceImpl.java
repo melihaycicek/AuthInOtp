@@ -1,4 +1,4 @@
-package com.system.authinotp;
+package com.system.authinotp;import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -10,9 +10,11 @@ import java.util.ArrayList;
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     private final UserRepository userRepository;
+    private final PasswordService passwordService;
 
-    public UserDetailsServiceImpl(UserRepository userRepository) {
+    public UserDetailsServiceImpl(UserRepository userRepository, PasswordService passwordService) {
         this.userRepository = userRepository;
+        this.passwordService = passwordService;
     }
 
     @Override
@@ -27,4 +29,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 new ArrayList<>()
         );
     }
+
+    public User saveUser(User user) {
+        // Kullanıcının parolasını hash'le
+        user.setPassword(passwordService.hashPassword(user.getPassword()));
+        // Kullanıcıyı veritabanına kaydet
+        return userRepository.save(user);
+    }
 }
+
